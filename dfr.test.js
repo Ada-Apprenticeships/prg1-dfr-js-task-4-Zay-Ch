@@ -184,7 +184,7 @@ describe('Dataframe function tests', () => {
         let _ignorerows = [ 0 ]; // no headers 
         let _ignorecols = [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]; // only cols 0, 1, & 20 should be loaded
         let _sourcefile = './assets/testing/datatrafficdataset_10.csv' // 11 rows, 21 columns
-          
+        
         let [dataframe, rows, cols ] = loadCSV ( _sourcefile, _ignorerows , _ignorecols )
         expect( rows ).toBe( 11 ) // check source file rows
         expect( cols ).toBe( 21 ) // check source file cols

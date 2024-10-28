@@ -114,17 +114,14 @@ function createSlice(dataframe, colindex, colpattern, exportcols = []) {
   if (!Array.isArray(dataframe) || !Array.isArray(dataframe[0])) {
     throw new Error('Invalid dataframe');
   }
-
   // Filter rows based on colpattern
   const rows = dataframe.filter((row) => {
     if (colindex >= row.length) {
       throw new Error('colindex is out of range');
     }
-
     // Match the pattern
     return colpattern === '*' || row[colindex] == colpattern;
   });
-
   // Determine which columns to export
   const slicedData = rows.map(row => {
     if (exportcols.length === 0) {
@@ -132,38 +129,55 @@ function createSlice(dataframe, colindex, colpattern, exportcols = []) {
     }
     return exportcols.map(colIndex => row[colIndex]);
   });
-
   return slicedData;
 }
 
-function loadCSV(csvFile, ignorerows = [], ignorecols = []) {
-  if (!fs.existsSync(csvFile)) {
-    return [[], -1, -1];
+function loadCSV(filename, ignorerows = [], ignorecols = []) {
+  if (!fs.existsSync(filename)) {
+      return [[], -1, -1]; // File does not exist
   }
 
-  const content = fs.readFileSync(csvFile, 'utf-8');
-  const rows = content.trim().split('\n').map(row => row.split(','));
+  const fileContent = fs.readFileSync(filename, 'utf-8');
+  const lines = fileContent.split('\n').map(line => line.trim()).filter(line => line.length > 0); // Trim and filter empty lines
 
-  // Log original row count
-  console.log("Original row count:", rows.length);
+  if (lines.length === 0) {
+      return [[], 0, 0];
+  }
 
-  // Remove ignored rows
-  const filteredRows = rows.filter((_, index) => !ignorerows.includes(index));
+  const headers = lines[0].split(','); // Split headers
+  const originalColCount = headers.length; // Total number of columns in the header
+  const filteredHeaders = headers.filter((_, index) => !ignorecols.includes(index)); // Filter out ignored columns
 
-  // Log filtered row count
-  console.log("Filtered row count after ignoring rows:", filteredRows.length);
+  const results = [];
+  let originalRowCount = 0;
 
-  // Remove ignored columns from each row
-  const finalData = filteredRows.map(row => {
-    return row.filter((_, index) => !ignorecols.includes(index));
+  lines.forEach((line, lineIndex) => {
+      if (lineIndex === 0 || ignorerows.includes(lineIndex)) {
+          // Skip header or ignored rows
+          return;
+      }
+
+      const columns = line.split(',');
+
+      // Create a filtered row based on ignored columns
+      const filteredRow = columns.map((col, index) => {
+          return ignorecols.includes(index) ? null : col; // Ignore specified columns
+      }).filter(value => value !== null); // Remove ignored columns
+
+      // Only push the filtered row if it has valid data
+      if (filteredRow.length > 0) {
+          results.push(filteredRow);
+          originalRowCount++; // Increment only when a valid row is added
+      }
   });
 
-  // Log final row and column counts
-  console.log("Final row count:", finalData.length);
-  console.log("Final column count:", finalData[0] ? finalData[0].length : 0);
+  // Debugging logs
+  console.log('Filtered Headers:', filteredHeaders); // Log filtered headers
+  console.log('Filtered Results:', results); // Log the filtered results
+  console.log('Filtered Row Count:', results.length); // Log the number of valid rows
+  console.log('Filtered Column Count:', filteredHeaders.length); // Log the number of valid columns
 
-  // Return the final data, number of rows and columns
-  return [finalData, finalData.length, finalData[0] ? finalData[0].length : 0];
+  return [results, originalRowCount, filteredHeaders.length]; // Return filtered column count
 }
 
 module.exports = {
