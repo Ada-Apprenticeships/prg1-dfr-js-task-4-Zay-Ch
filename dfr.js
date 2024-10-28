@@ -85,12 +85,6 @@ function flatten(dataframe) {
   return [];
 }
 
-function loadCSV(csvFile, ignorerows, ignorecols) { 
-  // string, dataset, dataset 
-  // returns a list comprising of [dataframe, rows (integer), cols (integer)]
-
-}
-
 function calculateMedian(dataset) {
   // Check if the dataset is an array
   if (!Array.isArray(dataset) || dataset.length === 0) {
@@ -117,7 +111,59 @@ function calculateMedian(dataset) {
 }
 
 function createSlice(dataframe, colindex, colpattern, exportcols = []) {
+  if (!Array.isArray(dataframe) || !Array.isArray(dataframe[0])) {
+    throw new Error('Invalid dataframe');
+  }
 
+  // Filter rows based on colpattern
+  const rows = dataframe.filter((row) => {
+    if (colindex >= row.length) {
+      throw new Error('colindex is out of range');
+    }
+
+    // Match the pattern
+    return colpattern === '*' || row[colindex] == colpattern;
+  });
+
+  // Determine which columns to export
+  const slicedData = rows.map(row => {
+    if (exportcols.length === 0) {
+      return row; // Return all columns if none specified
+    }
+    return exportcols.map(colIndex => row[colIndex]);
+  });
+
+  return slicedData;
+}
+
+function loadCSV(csvFile, ignorerows = [], ignorecols = []) {
+  if (!fs.existsSync(csvFile)) {
+    return [[], -1, -1];
+  }
+
+  const content = fs.readFileSync(csvFile, 'utf-8');
+  const rows = content.trim().split('\n').map(row => row.split(','));
+
+  // Log original row count
+  console.log("Original row count:", rows.length);
+
+  // Remove ignored rows
+  const filteredRows = rows.filter((_, index) => !ignorerows.includes(index));
+
+  // Log filtered row count
+  console.log("Filtered row count after ignoring rows:", filteredRows.length);
+
+  // Remove ignored columns from each row
+  const finalData = filteredRows.map(row => {
+    return row.filter((_, index) => !ignorecols.includes(index));
+  });
+
+  // Log final row and column counts
+  console.log("Final row count:", finalData.length);
+  console.log("Final column count:", finalData[0] ? finalData[0].length : 0);
+
+  // Return the final data, number of rows and columns
+  return [finalData, finalData.length, finalData[0] ? finalData[0].length : 0];
 }
 
 module.exports = {
