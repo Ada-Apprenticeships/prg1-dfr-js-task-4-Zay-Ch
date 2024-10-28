@@ -2,11 +2,12 @@ const fs = require('fs');
 
 
 function fileExists(filename) {
-  // returns true or false
+  return fs.existsSync(filename);
 }
 
 
-function validNumber(value) { // value can be string or numeric
+function validNumber(value) {
+  // value can be string or numeric
  // returns a boolean 
 }
 
