@@ -7,13 +7,20 @@ function fileExists(filename) {
 
 
 function validNumber(value) {
-  // value can be string or numeric
- // returns a boolean 
+  return !isNaN(value) && (typeof value == 'number' || !isNaN(parseFloat(value)));
 }
 
 
 function dataDimensions(dataframe) {
-  // returns a list [rows (int), cols (int)]
+  if (dataframe == null || dataframe == undefined) {
+    return [-1, -1];
+  }
+  if (Array.isArray(dataframe)) {
+    const rows = dataframe.length;
+    const cols = Array.isArray(dataframe[0]) ? dataframe[0].length : -1;
+    return [rows,cols];
+  }
+  return [-1, -1];
 }
 
 
