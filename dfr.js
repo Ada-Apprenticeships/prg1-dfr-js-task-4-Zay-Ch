@@ -25,32 +25,47 @@ function dataDimensions(dataframe) {
 
 
 function calculateMean(dataset) {
-  // returns a float or false
-  
+  if (dataDimensions(dataset)[1] != -1) {
+    const validNumbers = dataset.filter(item => validNumber(item)).map(Number);
+    if (validNumbers.length == 0) return false;
+    const sum = validNumbers.reduce((acc, val) => acc + val, 0);
+    return sum / validNumbers.length;
+  }
+  return false;
 }
 
 
 function findTotal(dataset) {
-  // returns float or false
-  
+  if (dataDimensions(dataset)[1] != -1) {
+    const validNumbers = dataset.filter(item => validNumber(item)).map(Number);
+    return validNumbers.reduce((acc, val) => acc + val, 0);
+  }  
+  return false;
 } 
 
 
-function convertToFloat(dataframe, col){ //dataframe, integer
-  // returns an integer, which is the number that were  converted to floats.
-  
+function convertToFloat(dataframe, col){
+  let count = 0;
+  for (let row of dataframe) {
+    if (row[col] != undefined && validNumber(row[col]) && typeof row[col] != 'number') {
+      row[col] = parseFloat(row[col]);
+      count++;
+    }
+  }
+  return count;
 }
 
 
 function flatten(dataframe) {
-  // returns a dataset (a flattened dataframe)
-  
+  if (dataDimensions(dataframe)[1] == 1) {
+    return dataframe.map(row => row[0]);
+  }  
+  return [];
 }
 
 
-function loadCSV(csvFile, ignorerows, ignorecols) {  // string, dataset, dataset
-  // returns a list comprising of [dataframe, rows (integer), cols (integer)]
-
+function loadCSV(csvFile, ignorerows, ignorecols) {
+  
 }
 
 
