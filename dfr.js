@@ -30,6 +30,7 @@ function dataDimensions(dataframe) {
   }
   return [-1, -1];
 }
+
 function calculateMean(dataset) {
   // Check if the dataset is an array
   if (!Array.isArray(dataset) || dataset.length === 0) {
@@ -91,24 +92,32 @@ function loadCSV(csvFile, ignorerows, ignorecols) {
 }
 
 function calculateMedian(dataset) {
-  if (dataDimensions(dataset)[1] != -1) {
-    const validNumbers = dataset.filter(item => validNumber(item)).map(Number).sort((a,b) => a - b);
-    const length = validNumbers.length;
-    if (length == 0) return false;
-    const mid = Math.floor(length / 2);
-    return length % 2 == 0 ? (validNumbers[mid - 1] + validNumbers[mid]) / 2 : validNumbers[mid];
+  // Check if the dataset is an array
+  if (!Array.isArray(dataset) || dataset.length === 0) {
+      return false; // Invalid dataset
   }
-  return false;  
+  // Filter valid numbers from the dataset
+  const validNumbers = dataset.filter(value => validNumber(value))
+                               .map(value => (typeof value === 'string' ? parseFloat(value) : value));
+  // Check if there are valid numbers
+  if (validNumbers.length === 0) {
+      return false; // No valid numbers found
+  }
+  // Sort the valid numbers
+  validNumbers.sort((a, b) => a - b);
+  const mid = Math.floor(validNumbers.length / 2);
+  // Calculate the median
+  if (validNumbers.length % 2 === 0) {
+      // Even number of elements
+      return (validNumbers[mid - 1] + validNumbers[mid]) / 2;
+  } else {
+      // Odd number of elements
+      return validNumbers[mid];
+  }
 }
 
 function createSlice(dataframe, colindex, colpattern, exportcols = []) {
-  const filteredData = dataframe.filter(row => row[colindex] == colpattern);
-  if (exportcols.length == 0) {
-    return filteredData;
-  }
-  return filteredData.map(row => {
-    return Object.keys(row).filter((_, index) => exportcols.includes(index)).map(key => row[key]);
-  });
+
 }
 
 module.exports = {
