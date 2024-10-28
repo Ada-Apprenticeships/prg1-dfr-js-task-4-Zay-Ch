@@ -49,12 +49,22 @@ function calculateMean(dataset) {
 }
 
 function findTotal(dataset) {
-  if (dataDimensions(dataset)[1] != -1) {
-    const validNumbers = dataset.filter(item => validNumber(item)).map(Number);
-    return validNumbers.reduce((acc, val) => acc + val, 0);
-  }  
-  return false;
-} 
+  // Check if the dataset is an array
+  if (!Array.isArray(dataset) || dataset.length === 0) {
+      return false; // Invalid dataset
+  }
+  // Filter valid numbers from the dataset
+  const validNumbers = dataset.filter(value => validNumber(value));
+  // Check if there are any valid numbers
+  if (validNumbers.length === 0) {
+      return false; // No valid numbers found
+  }
+  // Calculate the total of valid numbers
+  const total = validNumbers.reduce((acc, value) => {
+      return acc + (typeof value === 'string' ? parseFloat(value) : value);
+  }, 0);
+  return total; // Return the total
+}
 
 function convertToFloat(dataframe, col){
   let count = 0;
